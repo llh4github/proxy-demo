@@ -1,2 +1,2 @@
 # proxy-demo
-A demo for  reverse proxy.
+A demo for reverse proxy.
