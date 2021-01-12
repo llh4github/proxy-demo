@@ -1,7 +1,7 @@
 package demo
 
 import (
-	"fmt"
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -20,10 +20,8 @@ func (proxyHandler) ServeHTTP(write http.ResponseWriter, req *http.Request) {
 			log.Println(err)
 		}
 	}()
-	fmt.Errorf("f")
 	url := req.URL.Path
 	if url == "/a" {
-		fmt.Println("????")
 		nreq, _ := http.NewRequest(req.Method, "http://localhost:9091", req.Body)
 		nresp, _ := http.DefaultClient.Do(nreq)
 		defer nresp.Body.Close()
@@ -53,10 +51,12 @@ func TestDemo01(t *testing.T) {
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	t.Log(string(body))
+	assert.Equal(t, "web1", string(body))
 
 	resp, _ = http.Get("http://localhost:8080/ccc")
 	body, _ = ioutil.ReadAll(resp.Body)
 
 	t.Log(string(body))
+	assert.Equal(t, "default", string(body))
 
 }
