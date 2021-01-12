@@ -32,30 +32,38 @@ func (proxyHandler) ServeHTTP(write http.ResponseWriter, req *http.Request) {
 	write.Write([]byte("default"))
 }
 
-func TestDemo2(t *testing.T) {
+// 测试案例服务器启动情况
+func TestDemoServeStatus(t *testing.T) {
 	StartDemoServe()
 	time.Sleep(time.Second)
+	// 第一个服务器
 	resp, err := http.Get("http://localhost:9091")
+	body, err := ioutil.ReadAll(resp.Body)
+	assert.Equal(t, "web1", string(body))
+	// 第二个服务器
+	resp, err = http.Get("http://localhost:9092")
+	body, err = ioutil.ReadAll(resp.Body)
+	assert.Equal(t, "web2", string(body))
 	if err != nil {
 		t.Log(err)
 	}
-	body, _ := ioutil.ReadAll(resp.Body)
 	t.Log(string(body))
 }
-func TestDemo01(t *testing.T) {
+
+// 测试反向代理最简单的功能
+func TestProxyDemo01(t *testing.T) {
 	go http.ListenAndServe(":8080", proxyHandler{})
 	StartDemoServe()
-
 	time.Sleep(time.Second)
+	// 是否代理到9091上
 	resp, _ := http.Get("http://localhost:8080/a")
 	body, _ := ioutil.ReadAll(resp.Body)
-
 	t.Log(string(body))
 	assert.Equal(t, "web1", string(body))
 
+	// 没有配置代理的URL
 	resp, _ = http.Get("http://localhost:8080/ccc")
 	body, _ = ioutil.ReadAll(resp.Body)
-
 	t.Log(string(body))
 	assert.Equal(t, "default", string(body))
 
